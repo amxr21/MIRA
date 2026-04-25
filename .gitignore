@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.env
+.venv
+venv/
+
+# Runtime output
+logs/
+*.avi
+*.mp4
+
+# Generated sample outputs (keep inputs, ignore generated results)
+samples/output/
+
+# Large model weight files (keep .hef and .onnx, ignore large data blobs)
+*.onnx.data
+
+# IDE / OS
+.vscode/
+.idea/
+*.DS_Store
+Thumbs.db
+
+# Claude Code local settings
+.claude/settings.local.json

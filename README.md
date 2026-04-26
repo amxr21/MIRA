@@ -235,11 +235,11 @@ When `MOTORS_ENABLED = 0` (default):
 │  Arduino.update() → decide() → NavigationCommand        │
 ├─────────────────────────────────────────────────────────┤
 │  Slow loop  (8–20 FPS Hailo / 1–2 FPS CPU, daemon)      │
-│  Camera → YOLO → Depth → COCO → fuse() →               │
+│  Camera → YOLO → Depth → COCO → fuse() →                │
 │  estimate_motion() → display + record                   │
 ├─────────────────────────────────────────────────────────┤
 │  Main loop  (50ms tick, main thread)                    │
-│  AUTO: send NavigationCommand to Arduino                 │
+│  AUTO: send NavigationCommand to Arduino                │
 │  MANUAL: keyboard → send command to Arduino             │
 └─────────────────────────────────────────────────────────┘
 ```

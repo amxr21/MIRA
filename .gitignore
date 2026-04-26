@@ -16,8 +16,8 @@ logs/
 *.avi
 *.mp4
 
-# Generated sample outputs (keep inputs, ignore generated results)
-samples/output/
+# Generated sample outputs — tracked for README display
+# samples/output/
 
 # Large model weight files (keep .hef and .onnx, ignore large data blobs)
 *.onnx.data

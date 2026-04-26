@@ -24,9 +24,9 @@ Runs custom YOLO (Mars terrain) + DepthAnything V2 on a <strong>Hailo-8L NPU</st
 
 ### Pipeline Output Video
 
-https://github.com/amxr21/MIRA/releases/download/v1.0/fusion_output.avi
+https://github.com/amxr21/MIRA/releases/download/v1.0/fusion_output.mp4
 
-> Recorded at ~13 FPS (both models on Hailo NPU). Frame layout: live camera feed with bounding boxes and velocity arrows (left) + depth map inset (top-right) + sensor strip with TOF / IMU / speed / navigation command (bottom).
+> Recorded at ~15 FPS (both models on Hailo NPU). Frame layout: live camera feed with bounding boxes and velocity arrows (left) + depth map inset top-right) + sensor strip with TOF / IMU / speed / navigation command (bottom).
 
 ---
 
@@ -35,17 +35,26 @@ https://github.com/amxr21/MIRA/releases/download/v1.0/fusion_output.avi
 Sample outputs from `tools/fuse_photos.py` — full fusion pipeline (YOLO + DepthAnything V2 + TOF sensor overlay) run on static Mars terrain images using ONNX CPU inference.
 
 <p align="center">
+  <img src="samples/output/result_01.jpg" width="90%"/>
+</p>
+
+<p align="center">
+  <img src="samples/output/result_11.jpg" width="49%"/>
+  <img src="samples/output/result_10.jpg" width="49%"/>
+</p>
+<p align="center">
+  <img src="samples/output/result_07.jpg" width="49%"/>
+  <img src="samples/output/result_08.jpg" width="49%"/>
+</p>
+<p align="center">
+  <img src="samples/output/result_09.jpg" width="49%"/>
   <img src="samples/output/result_02.jpg" width="49%"/>
-  <img src="samples/output/result_03.jpg" width="49%"/>
 </p>
 <p align="center">
-  <img src="samples/output/result_04.jpg" width="49%"/>
-  <img src="samples/output/result_05.jpg" width="49%"/>
+  <img src="samples/output/result_06.jpg" width="90%"/>
 </p>
-<p align="center">
-  <img src="samples/output/result_06.jpg" width="49%"/>
-  <img src="samples/output/result_01.jpg" width="49%"/>
-</p>
+
+> ⚠️ **Note on result_06:** the depth map inset appears rotated — the input image was portrait-oriented and was auto-rotated to landscape before inference, but the depth model processed it in its original orientation. This is a known edge case in `fuse_photos.py` when input images are portrait.
 
 **Bounding box colors:** red = `big_rock` (danger) · orange = `unknown_object` (caution) · green = terrain class (informational)
 **Depth map** (top-right inset): Inferno colormap — bright = close, dark = far

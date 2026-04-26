@@ -296,8 +296,8 @@ A 500 ms watchdog on the Arduino side forces STOP if no command is received.
 ├──────────────────────────────────────┴──────────────┤
 │  Row 1: TOF C / LF / RF / LS / RS values  [source]  │
 │  Row 2: pitch / roll / yaw / LDR / speed  ► NAV CMD │
-│                     1280 × 80                        │
-└──────────────────────────────────────────────────────┘
+│                     1280 × 80                       │
+└─────────────────────────────────────────────────────┘
 Output: 1280 × 800 XVID AVI → logs/fusion_output.avi
 ```
 

@@ -9,10 +9,10 @@ A real-time autonomous vision and navigation pipeline for a Mars rover, running 
 MIRA fuses data from a camera, five time-of-flight sensors, an IMU, an LDR, and two ultrasonic bumpers to make navigation decisions in real time. The vision pipeline runs custom-trained YOLO (Mars terrain) and DepthAnything V2 (proximity estimation) on a Hailo-8L NPU, with automatic fallback to ONNX CPU inference when the NPU is unavailable.
 
 ```
-Camera ──► YOLO (Mars)  ──►┐
+Camera ──► YOLO (Mars)   ──►┐
            Depth (DA V2) ──►│  Fusion ──► Navigation Decision ──► Arduino Motors
            COCO (unknown)──►│
-Arduino ─► TOF/IMU/LDR  ──►┘
+Arduino ─► TOF/IMU/LDR   ──►┘
 ```
 
 ---

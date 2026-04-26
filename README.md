@@ -34,24 +34,18 @@ https://github.com/amxr21/MIRA/releases/download/v1.0/fusion_output.mp4
 
 Sample outputs from `tools/fuse_photos.py` — full fusion pipeline (YOLO + DepthAnything V2 + TOF sensor overlay) run on static Mars terrain images using ONNX CPU inference.
 
-<p align="center">
-  <img src="samples/output/result_01.jpg" width="90%"/>
-</p>
-
+<img src="samples/output/result_07.jpg" width="100%"/>
 <p align="center">
   <img src="samples/output/result_11.jpg" width="49%"/>
   <img src="samples/output/result_10.jpg" width="49%"/>
 </p>
 <p align="center">
-  <img src="samples/output/result_07.jpg" width="49%"/>
+  <img src="samples/output/result_09.jpg" width="49%"/>
   <img src="samples/output/result_08.jpg" width="49%"/>
 </p>
 <p align="center">
-  <img src="samples/output/result_09.jpg" width="49%"/>
+  <img src="samples/output/result_06.jpg" width="49%"/>
   <img src="samples/output/result_02.jpg" width="49%"/>
-</p>
-<p align="center">
-  <img src="samples/output/result_06.jpg" width="90%"/>
 </p>
 
 > ⚠️ **Note on result_06:** the depth map inset appears rotated — the input image was portrait-oriented and was auto-rotated to landscape before inference, but the depth model processed it in its original orientation. This is a known edge case in `fuse_photos.py` when input images are portrait.
@@ -65,10 +59,10 @@ Sample outputs from `tools/fuse_photos.py` — full fusion pipeline (YOLO + Dept
 ## Overview
 
 ```
-Camera ──► YOLO (Mars)   ──►┐
+Camera ──► YOLO (Mars)    ──►┐
            Depth (DA V2)  ──►│  Fusion ──► Navigation Decision ──► Arduino Motors
            COCO (unknown) ──►│
-Arduino ─► TOF/IMU/LDR   ──►┘
+Arduino ─► TOF/IMU/LDR    ──►┘
 ```
 
 MIRA fuses data from a camera, five time-of-flight sensors, an IMU, an LDR, and two ultrasonic bumpers to make navigation decisions in real time. The vision pipeline runs on a Hailo-8L NPU with automatic fallback to ONNX CPU inference when the NPU is unavailable.
@@ -291,11 +285,11 @@ When `MOTORS_ENABLED = 0` (default):
 │  Arduino.update() → decide() → NavigationCommand        │
 ├─────────────────────────────────────────────────────────┤
 │  Slow loop  (8–20 FPS Hailo / 1–2 FPS CPU, daemon)      │
-│  Camera → YOLO → Depth → COCO → fuse() →               │
+│  Camera → YOLO → Depth → COCO → fuse() →                │
 │  estimate_motion() → display + record                   │
 ├─────────────────────────────────────────────────────────┤
 │  Main loop  (50ms tick, main thread)                    │
-│  AUTO: send NavigationCommand to Arduino                 │
+│  AUTO: send NavigationCommand to Arduino                │
 │  MANUAL: keyboard → send command to Arduino             │
 └─────────────────────────────────────────────────────────┘
 ```
@@ -352,8 +346,8 @@ A 500 ms watchdog on the Arduino side forces STOP if no command is received.
 ├──────────────────────────────────────┴──────────────┤
 │  Row 1: TOF C / LF / RF / LS / RS values  [source]  │
 │  Row 2: pitch / roll / yaw / LDR / speed  ► NAV CMD │
-│                     1280 × 80                        │
-└──────────────────────────────────────────────────────┘
+│                     1280 × 80                       │
+└─────────────────────────────────────────────────────┘
 Output: 1280 × 800 XVID AVI → logs/fusion_output.avi
 ```
 

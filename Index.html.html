@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MIRA — Mars Intelligent Rover Autonomy</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --mars-red: #c1440e;
+    --mars-orange: #e8671a;
+    --mars-dust: #d4956a;
+    --space-dark: #020408;
+    --space-blue: #050d1a;
+    --star-white: #e8eaf0;
+    --accent-cyan: #00d4ff;
+    --accent-glow: rgba(0, 212, 255, 0.3);
+    --text-dim: #8899aa;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; outline: none !important; }
+  button { -webkit-appearance: none; appearance: none; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--space-dark);
+    color: var(--star-white);
+    font-family: 'Exo 2', sans-serif;
+    overflow-x: hidden;
+    cursor: crosshair;
+  }
+
+  /* STARFIELD */
+  #starfield {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 3rem;
+    height: 56px;
+    background: rgba(2, 4, 8, 0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(0, 212, 255, 0.15);
+    white-space: nowrap;
+  }
+
+  .nav-logo {
+    font-family: 'Orbitron', monospace;
+    font-weight: 900;
+    font-size: 1.4rem;
+    color: var(--accent-cyan);
+    letter-spacing: 4px;
+    text-shadow: 0 0 20px var(--accent-glow);
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 1.8rem;
+    list-style: none;
+    align-items: center;
+  }
+
+  .nav-links a {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--text-dim);
+    text-decoration: none;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    transition: color 0.3s, text-shadow 0.3s;
+    white-space: nowrap;
+  }
+
+  .nav-links a:hover {
+    color: var(--accent-cyan);
+    text-shadow: 0 0 10px var(--accent-glow);
+  }
+
+  /* HERO */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+    overflow: hidden;
+  }
+
+  .mars-surface {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 35%;
+    background: linear-gradient(180deg, transparent 0%, rgba(193, 68, 14, 0.15) 40%, rgba(193, 68, 14, 0.35) 100%);
+    border-top: 1px solid rgba(193, 68, 14, 0.3);
+  }
+
+  .mars-atmosphere {
+    position: absolute;
+    bottom: 33%;
+    left: 0; right: 0;
+    height: 120px;
+    background: linear-gradient(180deg, transparent, rgba(232, 103, 26, 0.08));
+    filter: blur(30px);
+  }
+
+  .hero-content {
+    text-align: center;
+    z-index: 2;
+    padding: 2rem;
+    animation: heroReveal 1.5s ease forwards;
+  }
+
+  @keyframes heroReveal {
+    from { opacity: 0; transform: translateY(40px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .hero-tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 5px;
+    color: var(--accent-cyan);
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    animation: heroReveal 1s ease 0.3s forwards;
+  }
+
+  .hero-title {
+    font-family: 'Orbitron', monospace;
+    font-weight: 900;
+    font-size: clamp(3rem, 8vw, 7rem);
+    line-height: 0.95;
+    letter-spacing: -2px;
+    margin-bottom: 1rem;
+    opacity: 0;
+    animation: heroReveal 1s ease 0.5s forwards;
+  }
+
+  .hero-title .mars { color: var(--mars-orange); }
+  .hero-title .glow {
+    color: var(--accent-cyan);
+    text-shadow: 0 0 40px var(--accent-glow), 0 0 80px rgba(0,212,255,0.2);
+  }
+
+  .hero-subtitle {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(0.6rem, 1.5vw, 0.85rem);
+    letter-spacing: 6px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin-bottom: 3rem;
+    opacity: 0;
+    animation: heroReveal 1s ease 0.7s forwards;
+  }
+
+  .hero-stats {
+    display: flex;
+    gap: 3rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 3rem;
+    opacity: 0;
+    animation: heroReveal 1s ease 0.9s forwards;
+  }
+
+  .stat-item {
+    text-align: center;
+    position: relative;
+  }
+
+  .stat-item::after { display: none; }
+
+  .stat-value {
+    font-family: 'Orbitron', monospace;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--accent-cyan);
+    text-shadow: 0 0 20px var(--accent-glow);
+    display: block;
+  }
+
+  .stat-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 2px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin-top: 0.3rem;
+    display: block;
+  }
+
+  .hero-btns {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    opacity: 0;
+    animation: heroReveal 1s ease 1.1s forwards;
+  }
+
+  a, a:focus, a:active, a:visited { outline: none !important; -webkit-tap-highlight-color: transparent; }
+
+  .btn {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 1rem 2.5rem;
+    text-decoration: none;
+    border: none;
+    outline: none !important;
+    box-shadow: none;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+    -webkit-tap-highlight-color: transparent;
+    cursor: pointer;
+  }
+
+  .btn::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+    transition: left 0.5s;
+  }
+
+  .btn:hover::before { left: 100%; }
+
+  .btn-primary {
+    background: var(--accent-cyan);
+    color: var(--space-dark);
+    box-shadow: 0 0 30px var(--accent-glow), inset 0 0 0 1px var(--accent-cyan);
+  }
+
+  .btn-primary:hover {
+    background: transparent;
+    color: var(--accent-cyan);
+    box-shadow: 0 0 50px var(--accent-glow), inset 0 0 0 1px var(--accent-cyan);
+  }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--star-white);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.2);
+  }
+
+  .btn-secondary:hover {
+    color: var(--accent-cyan);
+    box-shadow: inset 0 0 0 1px var(--accent-cyan), 0 0 20px var(--accent-glow);
+  }
+
+  .scroll-indicator {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    opacity: 0;
+    animation: heroReveal 1s ease 1.5s forwards;
+  }
+
+  .scroll-line {
+    width: 1px;
+    height: 60px;
+    background: linear-gradient(180deg, var(--accent-cyan), transparent);
+    animation: scrollPulse 2s ease infinite;
+  }
+
+  @keyframes scrollPulse {
+    0%, 100% { opacity: 0.3; transform: scaleY(1); }
+    50% { opacity: 1; transform: scaleY(1.1); }
+  }
+
+  .scroll-text {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 3px;
+    color: var(--text-dim);
+  }
+
+  /* SECTIONS */
+  section {
+    position: relative;
+    z-index: 1;
+    padding: 7rem 4rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .section-tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 5px;
+    color: var(--accent-cyan);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .section-tag::before {
+    content: '';
+    width: 30px;
+    height: 1px;
+    background: var(--accent-cyan);
+  }
+
+  .section-title {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(1.8rem, 4vw, 3rem);
+    font-weight: 700;
+    margin-bottom: 3rem;
+    line-height: 1.1;
+  }
+
+  /* OVERVIEW */
+  .overview-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+  }
+
+  .overview-text p {
+    color: var(--text-dim);
+    line-height: 1.8;
+    margin-bottom: 1.5rem;
+    font-size: 1rem;
+  }
+
+  .overview-text p strong {
+    color: var(--star-white);
+  }
+
+  .overview-visual {
+    position: relative;
+    padding: 2rem;
+    border: 1px solid rgba(0, 212, 255, 0.15);
+    background: rgba(0, 212, 255, 0.03);
+  }
+
+  .overview-visual::before {
+    content: 'SYSTEM OVERVIEW';
+    position: absolute;
+    top: -0.7rem;
+    left: 1rem;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 3px;
+    color: var(--accent-cyan);
+    background: var(--space-dark);
+    padding: 0 0.5rem;
+  }
+
+  .spec-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .spec-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.8rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    font-size: 0.85rem;
+  }
+
+  .spec-key {
+    font-family: 'Share Tech Mono', monospace;
+    color: var(--text-dim);
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+  }
+
+  .spec-val {
+    color: var(--accent-cyan);
+    font-weight: 600;
+    text-align: right;
+  }
+
+  /* PIPELINE */
+  .pipeline-section {
+    background: linear-gradient(180deg, transparent, rgba(0,212,255,0.02), transparent);
+    border-top: 1px solid rgba(0,212,255,0.08);
+    border-bottom: 1px solid rgba(0,212,255,0.08);
+    max-width: 100%;
+    padding: 7rem 4rem;
+  }
+
+  .pipeline-inner { max-width: 1200px; margin: 0 auto; }
+
+  .pipeline-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-top: 3rem;
+  }
+
+  .pipeline-card {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(0,212,255,0.12);
+    padding: 2rem;
+    position: relative;
+    transition: all 0.4s;
+    overflow: hidden;
+  }
+
+  .pipeline-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px; height: 100%;
+    background: var(--accent-cyan);
+    transform: scaleY(0);
+    transition: transform 0.3s;
+    transform-origin: top;
+  }
+
+  .pipeline-card:hover::before { transform: scaleY(1); }
+  .pipeline-card:hover {
+    border-color: rgba(0,212,255,0.3);
+    background: rgba(0,212,255,0.04);
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+  }
+
+  .card-num {
+    font-family: 'Orbitron', monospace;
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: rgba(0,212,255,0.1);
+    margin-bottom: 1rem;
+    line-height: 1;
+  }
+
+  .card-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--accent-cyan);
+    letter-spacing: 2px;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+  }
+
+  .card-desc {
+    color: var(--text-dim);
+    font-size: 0.85rem;
+    line-height: 1.7;
+  }
+
+  .card-desc strong { color: var(--star-white); }
+
+  .card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1.2rem;
+  }
+
+  .tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 1px;
+    padding: 0.25rem 0.6rem;
+    border: 1px solid rgba(0,212,255,0.2);
+    color: var(--accent-cyan);
+    background: rgba(0,212,255,0.05);
+  }
+
+  /* HARDWARE */
+  .hardware-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-top: 3rem;
+  }
+
+  .hw-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.2rem;
+    padding: 1.5rem;
+    border: 1px solid rgba(255,255,255,0.06);
+    background: rgba(255,255,255,0.01);
+    transition: all 0.3s;
+  }
+
+  .hw-item:hover {
+    border-color: rgba(0,212,255,0.2);
+    background: rgba(0,212,255,0.03);
+  }
+
+  .hw-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+  }
+
+  .hw-name {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--star-white);
+    margin-bottom: 0.3rem;
+    letter-spacing: 1px;
+  }
+
+  .hw-desc {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    line-height: 1.5;
+  }
+
+  /* PERFORMANCE */
+  .perf-section {
+    background: radial-gradient(ellipse at center, rgba(193,68,14,0.06) 0%, transparent 70%);
+    border-top: 1px solid rgba(193,68,14,0.15);
+    border-bottom: 1px solid rgba(193,68,14,0.15);
+    max-width: 100%;
+    padding: 7rem 4rem;
+  }
+
+  .perf-inner { max-width: 1200px; margin: 0 auto; }
+
+  .perf-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    margin-top: 3rem;
+  }
+
+  .perf-card {
+    text-align: center;
+    padding: 2.5rem 1.5rem;
+    border: 1px solid rgba(193,68,14,0.2);
+    background: rgba(193,68,14,0.04);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s;
+  }
+
+  .perf-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--mars-orange), transparent);
+  }
+
+  .perf-card:hover {
+    border-color: rgba(232,103,26,0.4);
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(193,68,14,0.1);
+  }
+
+  .perf-value {
+    font-family: 'Orbitron', monospace;
+    font-size: 2.2rem;
+    font-weight: 900;
+    color: var(--mars-orange);
+    text-shadow: 0 0 20px rgba(232,103,26,0.4);
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+
+  .perf-unit {
+    font-size: 1rem;
+    color: var(--mars-dust);
+  }
+
+  .perf-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 2px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin-top: 0.5rem;
+    display: block;
+  }
+
+  /* PUBLICATION */
+  .pub-card {
+    border: 1px solid rgba(0,212,255,0.15);
+    background: rgba(0,212,255,0.03);
+    padding: 3rem;
+    position: relative;
+    margin-top: 3rem;
+  }
+
+
+
+  .pub-title {
+    font-family: 'Exo 2', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--star-white);
+    line-height: 1.5;
+    margin-bottom: 1rem;
+  }
+
+  .pub-meta {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+    margin-bottom: 0.5rem;
+  }
+
+  .pub-status {
+    display: inline-block;
+    margin-top: 1rem;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 2px;
+    padding: 0.4rem 1rem;
+    border: 1px solid var(--accent-cyan);
+    color: var(--accent-cyan);
+    text-transform: uppercase;
+    animation: blink 2s ease infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  /* TEAM */
+  .team-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-top: 3rem;
+  }
+
+  .team-card {
+    padding: 2rem;
+    border: 1px solid rgba(255,255,255,0.06);
+    background: rgba(255,255,255,0.01);
+    text-align: center;
+    transition: all 0.3s;
+  }
+
+  .team-card:hover {
+    border-color: rgba(0,212,255,0.2);
+    background: rgba(0,212,255,0.03);
+  }
+
+  .team-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent-cyan), var(--mars-orange));
+    margin: 0 auto 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Orbitron', monospace;
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: var(--space-dark);
+  }
+
+  .team-name {
+    font-family: 'Exo 2', sans-serif;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--star-white);
+    margin-bottom: 0.4rem;
+  }
+
+  .team-role {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 1px;
+    color: var(--accent-cyan);
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+  }
+
+  .team-org {
+    font-size: 0.78rem;
+    color: var(--text-dim);
+  }
+
+  /* FOOTER */
+  footer {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 4rem 2rem;
+    border-top: 1px solid rgba(0,212,255,0.08);
+  }
+
+  .footer-logo {
+    font-family: 'Orbitron', monospace;
+    font-weight: 900;
+    font-size: 2rem;
+    color: var(--accent-cyan);
+    letter-spacing: 6px;
+    text-shadow: 0 0 30px var(--accent-glow);
+    margin-bottom: 1rem;
+  }
+
+  .footer-links {
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin: 1.5rem 0;
+  }
+
+  .footer-links a {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 2px;
+    color: var(--text-dim);
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: color 0.3s;
+  }
+
+  .footer-links a:hover { color: var(--accent-cyan); }
+
+  .footer-copy {
+    font-size: 0.75rem;
+    color: rgba(136,153,170,0.5);
+    font-family: 'Share Tech Mono', monospace;
+    margin-top: 1.5rem;
+  }
+
+  /* DIVIDER */
+  .divider {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(0,212,255,0.2), transparent);
+    margin: 0;
+  }
+
+  /* SCANLINE EFFECT */
+  body::after {
+    content: '';
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.015) 2px,
+      rgba(0,0,0,0.015) 4px
+    );
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  @media (max-width: 768px) {
+    nav { padding: 1rem 1.5rem; }
+    .nav-links { display: none; }
+    section { padding: 4rem 1.5rem; }
+    .overview-grid { grid-template-columns: 1fr; }
+    .pipeline-grid { grid-template-columns: 1fr; }
+    .hardware-grid { grid-template-columns: 1fr; }
+    .perf-grid { grid-template-columns: repeat(2, 1fr); }
+    .team-grid { grid-template-columns: 1fr; }
+    .hero-stats { gap: 1.5rem; }
+    .pipeline-section, .perf-section { padding: 4rem 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="starfield"></canvas>
+
+<nav>
+  <div class="nav-logo">MIRA</div>
+  <ul class="nav-links">
+    <li><a href="#overview">Overview</a></li>
+    <li><a href="#pipeline">AI Pipeline</a></li>
+    <li><a href="#hardware">Hardware</a></li>
+    <li><a href="#performance">Performance</a></li>
+    <li><a href="#publication">Research</a></li>
+    <li><a href="#results">Results</a></li>
+    <li><a href="#team">Team</a></li>
+    <li><a href="https://github.com/amxr21/MIRA" target="_blank">GitHub</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="mars-surface"></div>
+  <div class="mars-atmosphere"></div>
+  <div class="hero-content">
+    <p class="hero-tag">University of Sharjah · Senior Design Project · 2025–2026</p>
+    <h1 class="hero-title">
+      <span class="mars">M</span><span class="glow">IRA</span>
+    </h1>
+    <p class="hero-subtitle">Mars Intelligent Rover Autonomy</p>
+    <div class="hero-stats">
+      <div class="stat-item">
+        <span class="stat-value">12×</span>
+        <span class="stat-label">AI Speedup</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-value">15–20</span>
+        <span class="stat-label">FPS Real-Time</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-value">&lt;500</span>
+        <span class="stat-label">ms Latency</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-value">0</span>
+        <span class="stat-label">LiDAR / Cloud</span>
+      </div>
+    </div>
+
+  </div>
+  <div style="position:absolute;bottom:2.5rem;left:50%;transform:translateX(-50%);z-index:2;display:flex;flex-direction:column;align-items:center;gap:1.5rem;">
+    <div style="display:flex;gap:1.2rem;">
+      <button onclick="window.open('https://github.com/amxr21/MIRA','_blank')" style="font-family:'Share Tech Mono',monospace;font-size:0.72rem;letter-spacing:3px;text-transform:uppercase;padding:0.9rem 2.2rem;cursor:pointer;outline:0;border:0;background:#00d4ff;color:#020408;box-shadow:0 0 25px rgba(0,212,255,0.4);">VIEW ON GITHUB</button>
+      <button onclick="document.getElementById('overview').scrollIntoView({behavior:'smooth'})" style="font-family:'Share Tech Mono',monospace;font-size:0.72rem;letter-spacing:3px;text-transform:uppercase;padding:0.9rem 2.2rem;cursor:pointer;outline:0;background:transparent;color:#e8eaf0;border:0;box-shadow:0 0 0 1px rgba(255,255,255,0.3);">EXPLORE MIRA</button>
+    </div>
+    <div class="scroll-line"></div>
+    <span class="scroll-text">Scroll</span>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- OVERVIEW -->
+<section id="overview">
+  <div class="section-tag">Mission Brief</div>
+  <h2 class="section-title">What is MIRA?</h2>
+  <div class="overview-grid">
+    <div class="overview-text">
+      <p>MIRA is an <strong>autonomous Mars rover platform</strong> built entirely on edge hardware — no LiDAR, no cloud compute, no NVIDIA Jetson. It runs a complete dual-branch AI perception pipeline on a <strong>Hailo-8L NPU</strong>, achieving real-time terrain detection and depth estimation at 15–20 FPS.</p>
+      <p>The system fuses data from <strong>five TOF sensors, an IMU, an LDR,</strong> and a camera to make four autonomous navigation decisions: FORWARD, SLOW, TURN, and STOP — with end-to-end latency under 500ms.</p>
+      <p>MIRA was presented at the <strong>Made in CCI Exhibition 2026</strong> at the University of Sharjah, and the research paper is currently being prepared for submission to an <strong>international IEEE conference</strong>.</p>
+    </div>
+    <div class="overview-visual">
+      <ul class="spec-list">
+        <li class="spec-item">
+          <span class="spec-key">Platform</span>
+          <span class="spec-val">Raspberry Pi 5 + Hailo-8L NPU</span>
+        </li>
+        <li class="spec-item">
+          <span class="spec-key">Vision Model</span>
+          <span class="spec-val">YOLO26n-seg + DepthAnything V2</span>
+        </li>
+        <li class="spec-item">
+          <span class="spec-key">Training Data</span>
+          <span class="spec-val">19,757 AI4Mars Labels</span>
+        </li>
+        <li class="spec-item">
+          <span class="spec-key">Training Platform</span>
+          <span class="spec-val">AWS SageMaker / NVIDIA A10G</span>
+        </li>
+        <li class="spec-item">
+          <span class="spec-key">Sensor Fusion</span>
+          <span class="spec-val">BEVFusion-inspired (ICRA 2023)</span>
+        </li>
+        <li class="spec-item">
+          <span class="spec-key">Languages</span>
+          <span class="spec-val">Python + C++</span>
+        </li>
+        <li class="spec-item">
+          <span class="spec-key">Power Budget</span>
+          <span class="spec-val">Sub-18W · 3hr Autonomous Op.</span>
+        </li>
+        <li class="spec-item">
+          <span class="spec-key">Navigation Outputs</span>
+          <span class="spec-val">FORWARD / SLOW / TURN / STOP</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- PIPELINE -->
+<div class="pipeline-section" id="pipeline">
+  <div class="pipeline-inner">
+    <div class="section-tag">Intelligence System</div>
+    <h2 class="section-title">Dual-Branch AI Pipeline</h2>
+    <div class="pipeline-grid">
+      <div class="pipeline-card">
+        <div class="card-num">01</div>
+        <div class="card-title">Vision Branch</div>
+        <div class="card-desc">
+          <strong>YOLO26n-seg</strong> detects and classifies Mars terrain in real time — rocks, bedrock, sand, and slopes — with pixel-level segmentation at 15–20 FPS on the Hailo-8L NPU.<br><br>
+          Fine-tuned on <strong>19,757 Martian terrain labels</strong> from the AI4Mars dataset using AWS SageMaker on an NVIDIA A10G GPU.
+        </div>
+        <div class="card-tags">
+          <span class="tag">YOLO</span>
+          <span class="tag">Segmentation</span>
+          <span class="tag">Hailo-8L</span>
+          <span class="tag">AI4Mars</span>
+        </div>
+      </div>
+      <div class="pipeline-card">
+        <div class="card-num">02</div>
+        <div class="card-title">Depth Branch</div>
+        <div class="card-desc">
+          <strong>DepthAnything V2 Small</strong> generates dense monocular depth maps from a single camera — no stereo, no LiDAR required. Provides continuous depth estimation across the full field of view.<br><br>
+          Validated against <strong>5× VL53L1X TOF sensors</strong> for physical distance confirmation at key obstacle positions.
+        </div>
+        <div class="card-tags">
+          <span class="tag">DepthAnything V2</span>
+          <span class="tag">Monocular Depth</span>
+          <span class="tag">TOF Validation</span>
+        </div>
+      </div>
+      <div class="pipeline-card">
+        <div class="card-num">03</div>
+        <div class="card-title">Sensor Fusion</div>
+        <div class="card-desc">
+          A custom <strong>BEVFusion-inspired</strong> fusion layer (MIT CSAIL, ICRA 2023) merges vision and physical sensor branches into a unified spatial representation.<br><br>
+          Fuses <strong>TOF, IMU, LDR, and ultrasonic</strong> telemetry to output four real-time navigation commands with full pipeline latency under 500ms.
+        </div>
+        <div class="card-tags">
+          <span class="tag">BEVFusion</span>
+          <span class="tag">IMU</span>
+          <span class="tag">LDR</span>
+          <span class="tag">Ultrasonic</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- HARDWARE -->
+<section id="hardware">
+  <div class="section-tag">Physical Platform</div>
+  <h2 class="section-title">Hardware Stack</h2>
+  <div class="hardware-grid">
+    <div class="hw-item">
+      <div class="hw-icon">🧠</div>
+      <div>
+        <div class="hw-name">Hailo-8L NPU</div>
+        <div class="hw-desc">Dedicated AI accelerator delivering 12× inference speedup over CPU-only. Runs YOLO and DepthAnything V2 simultaneously at 15–20 FPS.</div>
+      </div>
+    </div>
+    <div class="hw-item">
+      <div class="hw-icon">💻</div>
+      <div>
+        <div class="hw-name">Raspberry Pi 5</div>
+        <div class="hw-desc">Main compute platform running Python orchestration and C++ communication layers. Manages all sensor I/O and decision output.</div>
+      </div>
+    </div>
+    <div class="hw-item">
+      <div class="hw-icon">📡</div>
+      <div>
+        <div class="hw-name">5× VL53L1X TOF Sensors</div>
+        <div class="hw-desc">Time-of-flight sensors providing physical depth validation and obstacle proximity detection across five directional zones.</div>
+      </div>
+    </div>
+    <div class="hw-item">
+      <div class="hw-icon">🎯</div>
+      <div>
+        <div class="hw-name">Arduino Mega</div>
+        <div class="hw-desc">Handles low-level sensor reading, motor control, and serial communication with the Raspberry Pi at 30Hz update rate.</div>
+      </div>
+    </div>
+    <div class="hw-item">
+      <div class="hw-icon">📷</div>
+      <div>
+        <div class="hw-name">Camera Module</div>
+        <div class="hw-desc">Single camera input feeding both the YOLO segmentation branch and DepthAnything V2 — no stereo camera required.</div>
+      </div>
+    </div>
+    <div class="hw-item">
+      <div class="hw-icon">⚡</div>
+      <div>
+        <div class="hw-name">IMU + LDR</div>
+        <div class="hw-desc">IMU provides slope, pitch, roll, and yaw for terrain tilt detection. LDR enables light-aware confidence weighting in the fusion layer.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- PERFORMANCE -->
+<div class="perf-section" id="performance">
+  <div class="perf-inner">
+    <div class="section-tag">Benchmarks</div>
+    <h2 class="section-title">Performance Results</h2>
+    <div class="perf-grid">
+      <div class="perf-card">
+        <span class="perf-value">12<span class="perf-unit">×</span></span>
+        <span class="perf-label">AI Inference Speedup vs CPU</span>
+      </div>
+      <div class="perf-card">
+        <span class="perf-value">15–20<span class="perf-unit"> FPS</span></span>
+        <span class="perf-label">Real-Time Pipeline Speed</span>
+      </div>
+      <div class="perf-card">
+        <span class="perf-value">85–120<span class="perf-unit"> ms</span></span>
+        <span class="perf-label">End-to-End Latency</span>
+      </div>
+      <div class="perf-card">
+        <span class="perf-value">&lt;18<span class="perf-unit"> W</span></span>
+        <span class="perf-label">Total Power Budget</span>
+      </div>
+      <div class="perf-card">
+        <span class="perf-value">3<span class="perf-unit"> hrs</span></span>
+        <span class="perf-label">Autonomous Operation</span>
+      </div>
+      <div class="perf-card">
+        <span class="perf-value">19,757</span>
+        <span class="perf-label">Training Labels (AI4Mars)</span>
+      </div>
+      <div class="perf-card">
+        <span class="perf-value">0</span>
+        <span class="perf-label">LiDAR / Cloud / Jetson</span>
+      </div>
+      <div class="perf-card">
+        <span class="perf-value">4</span>
+        <span class="perf-label">Navigation Decisions</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- PUBLICATION -->
+<section id="publication">
+  <div class="section-tag">Research</div>
+  <h2 class="section-title">IEEE Publication</h2>
+  <div class="pub-card">
+    <div class="pub-title">Design and Implementation of an Embedded AI Platform for Autonomous Rover Navigation Using Edge Acceleration</div>
+    <div class="pub-meta">Mohammed Nassar Alshimmari · Ammar Obad Alwasim · Dr. Sohaib Majzoub · Dr. Manar Abu Talib · Dr. Mohamad Khairi Ishak</div>
+    <div class="pub-meta">University of Sharjah, College of Computing and Informatics</div>
+    <div class="pub-meta" style="margin-top:0.5rem; color: rgba(136,153,170,0.6);">Presented at Made in CCI Exhibition 2026 · IEEE Conference Submission: December 2026</div>
+    <span class="pub-status">● In Preparation — Dec 2026</span>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- TEAM -->
+<section id="team">
+  <div class="section-tag">People</div>
+  <h2 class="section-title">Team & Supervisors</h2>
+  <div class="team-grid">
+    <!-- Engineers -->
+    <div class="team-card">
+      <div class="team-avatar">MN</div>
+      <div class="team-name">Mohammed Nassar Alshimmari</div>
+      <div class="team-role">Co-Engineer</div>
+      <div class="team-org">Computer Engineering Graduate · University of Sharjah</div>
+    </div>
+    <div class="team-card">
+      <div class="team-avatar">AO</div>
+      <div class="team-name">Ammar Obad Alwasim</div>
+      <div class="team-role">Co-Engineer</div>
+      <div class="team-org">Computer Engineering Graduate · University of Sharjah</div>
+    </div>
+    <!-- Supervisors -->
+    <div class="team-card">
+      <div class="team-avatar">SM</div>
+      <div class="team-name">Dr. Sohaib Majzoub</div>
+      <div class="team-role">Research Supervisor</div>
+      <div class="team-org">Associate Professor · University of Sharjah</div>
+    </div>
+    <div class="team-card">
+      <div class="team-avatar">MA</div>
+      <div class="team-name">Dr. Manar Abu Talib</div>
+      <div class="team-role">Co-Supervisor</div>
+      <div class="team-org">Research Operations · University of Sharjah</div>
+    </div>
+    <div class="team-card">
+      <div class="team-avatar">MK</div>
+      <div class="team-name">Dr. Mohamad Khairi Ishak</div>
+      <div class="team-role">Co-Supervisor</div>
+      <div class="team-org">Associate Professor · University of Sharjah</div>
+    </div>
+    <!-- Institution -->
+    <div class="team-card">
+      <div class="team-avatar" style="background: linear-gradient(135deg, #1A3C6E, #00d4ff);">UOS</div>
+      <div class="team-name">University of Sharjah</div>
+      <div class="team-role">College of Computing and Informatics</div>
+      <div class="team-org">Sharjah, United Arab Emirates · 2025–2026</div>
+    </div>
+  </div>

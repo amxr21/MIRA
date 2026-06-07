@@ -1,5 +1,9 @@
 # MIRA — Mars Intelligent Rover Autonomy
 
+*Designed & Developed by AMXR*
+
+---
+
 <p align="center">
   <img src="samples/output/result_01.jpg" width="100%"/>
 </p>
